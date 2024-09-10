@@ -945,16 +945,8 @@ void serialCallback(uint8_t sbyte) {
       #endif
     } else if (command == CMD_GPS_CMD) {
       #if ENABLE_GPS
-        if(sbyte==GPS_CMD_RATE){
-          if (frame_len < CMD_L) cmdbuf[frame_len++] = sbyte;
-          if (frame_len == 2) {
-            GPS_poling(cmdbuf[0],int(cmdbuf[1]));
-          }
-        }
-        else{
-          GPS_handler(sbyte);
-        }
-      #endif
+         GPS_handler(sbyte);
+       #endif
     } else if (command == CMD_GPS_RATE) {
       #if ENABLE_GPS
         if (frame_len < CMD_L) cmdbuf[frame_len++] = sbyte;
