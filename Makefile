@@ -30,14 +30,14 @@ prep-avr:
 
 prep-esp32:
 	arduino-cli core update-index --config-file arduino-cli.yaml
-	arduino-cli core install esp32:esp32 --config-file arduino-cli.yaml
+	arduino-cli core install esp32:esp32@2.0.15 --config-file arduino-cli.yaml
 	arduino-cli lib install "Adafruit SSD1306"
 	arduino-cli lib install "XPowersLib"
 	arduino-cli lib install "Crypto"
 
 prep-samd:
 	arduino-cli core update-index --config-file arduino-cli.yaml
-	arduino-cli core install adafruit:samd --config-file arduino-cli.yaml
+	arduino-cli core install arduino:samd --config-file arduino-cli.yaml
 
 prep-nrf:
 	arduino-cli core update-index --config-file arduino-cli.yaml
@@ -202,7 +202,9 @@ upload-rak4631:
 
 release: release-all
 
-release-all: console-site spiffs-image release-rnode release-tbeam release-tbeam_sx1262 release-lora32_v10 release-lora32_v20 release-lora32_v21 release-lora32_v10_extled release-lora32_v20_extled release-lora32_v21_extled release-lora32_v21_tcxo release-featheresp32 release-genericesp32 release-heltec32_v2 release-heltec32_v3 release-heltec32_v2_extled release-rnode_ng_20 release-rnode_ng_21 release-t3s3 release-hashes
+release-all: spiffs-image release-rnode release-tbeam release-tbeam_GPS release-tbeam_sx1262 release-lora32_v10 release-lora32_v20 release-lora32_v21 release-lora32_v10_extled release-lora32_v20_extled release-lora32_v21_extled release-lora32_v21_tcxo release-featheresp32 release-genericesp32 release-heltec32_v2 release-heltec32_v3 release-heltec32_v2_extled release-rnode_ng_20 release-rnode_ng_21 release-t3s3 release-hashes
+
+release-btb: spiffs-image release-tbeam release-tbeam_GPS release-lora32_v21_tcxo release-lora32_v21 release-hashes
 
 release-hashes:
 	python ./release_hashes.py > ./Release/release.json
@@ -219,6 +221,15 @@ release-tbeam:
 	cp build/esp32.esp32.t-beam/RNode_Firmware.ino.bootloader.bin build/rnode_firmware_tbeam.bootloader
 	cp build/esp32.esp32.t-beam/RNode_Firmware.ino.partitions.bin build/rnode_firmware_tbeam.partitions
 	zip --junk-paths ./Release/rnode_firmware_tbeam.zip ./Release/esptool/esptool.py ./Release/console_image.bin build/rnode_firmware_tbeam.boot_app0 build/rnode_firmware_tbeam.bin build/rnode_firmware_tbeam.bootloader build/rnode_firmware_tbeam.partitions
+	rm -r build
+
+release-tbeam_GPS:
+	arduino-cli compile --fqbn esp32:esp32:t-beam -e --build-property "build.partitions=no_ota" --build-property "upload.maximum_size=2097152" --build-property "compiler.cpp.extra_flags=\"-DBOARD_MODEL=0x33\" \"-DENABLE_GPS\""
+	cp ~/.arduino15/packages/esp32/hardware/esp32/$(ESP_IDF_VER)/tools/partitions/boot_app0.bin build/rnode_firmware_tbeam_GPS.boot_app0
+	cp build/esp32.esp32.t-beam/RNode_Firmware.ino.bin build/rnode_firmware_tbeam_GPS.bin
+	cp build/esp32.esp32.t-beam/RNode_Firmware.ino.bootloader.bin build/rnode_firmware_tbeam_GPS.bootloader
+	cp build/esp32.esp32.t-beam/RNode_Firmware.ino.partitions.bin build/rnode_firmware_tbeam_GPS.partitions
+	zip --junk-paths ./Release/rnode_firmware_tbeam_GPS.zip ./Release/esptool/esptool.py ./Release/console_image.bin build/rnode_firmware_tbeam_GPS.boot_app0 build/rnode_firmware_tbeam_GPS.bin build/rnode_firmware_tbeam_GPS.bootloader build/rnode_firmware_tbeam_GPS.partitions
 	rm -r build
 
 release-tbeam_sx1262:

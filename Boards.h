@@ -74,6 +74,7 @@
   #define HAS_BLUETOOTH false
   #define HAS_BLE false
   #define HAS_TCXO false
+  #define USE_GPS false
   #define HAS_PMU false
   #define HAS_NP false
   #define HAS_EEPROM false
@@ -84,6 +85,9 @@
 
   #if defined(ENABLE_TCXO)
       #define HAS_TCXO true
+  #endif
+  #if defined(ENABLE_GPS)
+    #define USE_GPS true
   #endif
 
   #if MCU_VARIANT == MCU_1284P
@@ -134,6 +138,7 @@
     #define GPS_BAUD_RATE 9600
     #define PIN_GPS_TX 12
     #define PIN_GPS_RX 34
+    
 
     #if BOARD_MODEL == BOARD_GENERIC_ESP32
       #define HAS_BLUETOOTH true

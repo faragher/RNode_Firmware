@@ -225,6 +225,7 @@ bool init_pmu() {
             PMU = NULL;
         } else {
             Serial.println("AXP2101 PMU init succeeded, using AXP2101 PMU");
+            if(ENABLE_GPS){Serial.println("GPS is specified");}
         }
     }
 
@@ -269,7 +270,9 @@ bool init_pmu() {
       PMU->enablePowerOutput(XPOWERS_LDO2);
 
       // Turn on GPS
-      //PMU->enablePowerOutput(XPOWERS_LDO3);
+      if(ENABLE_GPS){
+        PMU->enablePowerOutput(XPOWERS_LDO3);
+      }
 
       // protected oled power source
       PMU->setProtectedChannel(XPOWERS_DCDC1);
@@ -324,7 +327,9 @@ bool init_pmu() {
       PMU->enablePowerOutput(XPOWERS_ALDO2);
 
       // GNSS VDD
-      //PMU->enablePowerOutput(XPOWERS_ALDO3);
+      if(ENABLE_GPS){
+        PMU->enablePowerOutput(XPOWERS_ALDO3);
+      }
 
       // GNSS RTC PowerVDD
       //PMU->enablePowerOutput(XPOWERS_VBACKUP);

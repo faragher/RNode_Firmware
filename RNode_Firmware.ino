@@ -41,6 +41,12 @@ volatile bool serial_buffering = false;
   #include "Console.h"
 #endif
 
+
+
+#if defined(ENABLE_GPS)
+  #include "GPS.h"
+#endif
+
 char sbuf[128];
 
 #if MCU_VARIANT == MCU_ESP32 || MCU_VARIANT == MCU_NRF52
@@ -189,6 +195,10 @@ void setup() {
     } else {
       kiss_indicate_reset();
     }
+  #endif
+
+  #if USE_GPS
+    GPS_init();
   #endif
 
   // Validate board health, EEPROM and config
@@ -933,6 +943,25 @@ void serialCallback(uint8_t sbyte) {
           bt_enable_pairing();
         }
       #endif
+    } else if (command == CMD_GPS_CMD) {
+      #if ENABLE_GPS
+        if(sbyte==GPS_CMD_RATE){
+          if (frame_len < CMD_L) cmdbuf[frame_len++] = sbyte;
+          if (frame_len == 2) {
+            GPS_poling(cmdbuf[0],int(cmdbuf[1]));
+          }
+        }
+        else{
+          GPS_handler(sbyte);
+        }
+      #endif
+    } else if (command == CMD_GPS_RATE) {
+      #if ENABLE_GPS
+        if (frame_len < CMD_L) cmdbuf[frame_len++] = sbyte;
+        if (frame_len == 2) {
+          GPS_poling(cmdbuf[0],int(cmdbuf[1]));
+        }
+      #endif
     } else if (command == CMD_DISP_INT) {
       #if HAS_DISPLAY
         if (sbyte == FESC) {
@@ -949,6 +978,7 @@ void serialCallback(uint8_t sbyte) {
 
       #endif
     } else if (command == CMD_DISP_ADDR) {
+
       #if HAS_DISPLAY
         if (sbyte == FESC) {
             ESCAPE = true;
@@ -1307,6 +1337,12 @@ void loop() {
 
   #if HAS_INPUT
     input_read();
+  #endif
+
+  #if USE_GPS
+    if(hw_ready){
+      GPS_process();
+    }
   #endif
 }
 
